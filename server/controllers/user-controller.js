@@ -22,7 +22,7 @@ module.exports = {
 
     if (!user) {
       return res.status(400).json({ message: 'Something is wrong!' });
-    }
+    } 
     const token = signToken(user);
     res.json({ token, user });
   },
@@ -44,12 +44,12 @@ module.exports = {
   },
   // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
   // user comes from `req.user` created in the auth middleware function
-  async saveBook({ user, body }, res) {
+  async saveBook({ user, input }, res) {
     console.log(user);
     try {
       const updatedUser = await User.findOneAndUpdate(
-        { _id: user._id },
-        { $addToSet: { savedBooks: body } },
+        { username: user.username },
+        { $addToSet: { savedBooks: input } },
         { new: true, runValidators: true }
       );
       return res.json(updatedUser);
