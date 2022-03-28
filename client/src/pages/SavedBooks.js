@@ -10,15 +10,13 @@ import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
   const [userData, setUserData] = useState({});
+  const { loading, data } = useQuery(GET_ME, {
+    fetchPolicy: "network-only" // Doesn't check cache before making a network request
+  });
 
-  // use this to determine if `useEffect()` hook needs to run again
-  // const userDataLength = Object.keys(userData).length;
-  
-  // eslint-disable-next-line 
-  const { loading, data } = useQuery(GET_ME);
   const [removeBook] = useMutation(REMOVE_BOOK)
 
-  useEffect(() => {
+  useEffect( () => {
     if(data?.me){
       setUserData(data.me)
     }
@@ -35,12 +33,13 @@ const SavedBooks = () => {
 
     try {
         const updatedUser = await removeBook({
-            variables: {id: userData._id, bookId: bookId}
+            variables: {username: userData.username, bookId}
         })
 
-      setUserData(updatedUser);
+      setUserData(updatedUser.data.removeBook);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
+
     } catch (err) {
       console.error(err);
     }
@@ -67,7 +66,7 @@ const SavedBooks = () => {
         <CardColumns>
           {userData.savedBooks?.map((book) => {
             return (
-              <Card key={book.bookId} border='dark'>
+              <Card key={book._id} border='dark'>
                 {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
